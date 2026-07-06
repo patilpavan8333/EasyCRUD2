@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    stages {
+        stage('PULL') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Bhagyash-raut/EasyCRUD2.git'
+            }
+        }
+
+        stage('BUILD') {
+            steps {
+                sh ''' cd backend
+                       mvn clean package -DskipTests'''
+            }
+        }
+        stage('TEST') {
+            steps {
+                sh ''' cd backend
+                       mvn sonar:sonar -Dsonar.projectKey=Studentapp -Dsonar.projectName='Studentapp' -Dsonar.host.url=http://13.233.149.235:9000 -Dsonar.token=sqp_07eebebe4701830c2e210b1905171ef792414cbe'''
+            }
+        }
+        stage('DEPLOY') {
+            steps {
+                echo 'Deploying application...'
+            }
+        }
+    }
+}
