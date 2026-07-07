@@ -49,7 +49,7 @@ Exit MariaDB:
 
 EXIT;
 ```
-change
+changes changes
 ## 4. You will need Database Credentials to Connect Backend with Database
 1. DB_HOST = 172.17.0.2
 2. DB_USER = root
