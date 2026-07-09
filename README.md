@@ -62,7 +62,3 @@ changes changes
 THIS CHANGES IS FOR JENKINS TEST
 
 
-
-
-demo word for testing purpose
-
