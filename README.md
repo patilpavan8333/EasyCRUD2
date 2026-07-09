@@ -58,7 +58,6 @@ changes changes
 5. DB_NAME = student_db
 
 
-
-1-THIS CHANGES IS FOR JENKINS TEST
+THIS CHANGES IS FOR JENKINS TEST
 
 
