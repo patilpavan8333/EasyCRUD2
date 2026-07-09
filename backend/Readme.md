@@ -54,6 +54,8 @@ vim backend/src/main/resources/application.properties
 ```shell
 mvn clean package
 ```
+changes added
+
 
 ## Step 4: Run the Application
 
