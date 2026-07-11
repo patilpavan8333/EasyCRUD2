@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/patilpavan8333/EasyCRUD2.git'
+            }
+        }
+
+        stage('Create Database') {
+            steps {
+                    sh '''
+                     mysql -h database-1.ctu2esuuc6m2.ap-southeast-1.rds.amazonaws.com \
+                     -u admin \
+                     -pPatil12345 \
+                     -e "CREATE DATABASE IF NOT EXISTS student_db; SHOW DATABASES;"
+                      '''
+            }
+        }
+
+        stage('Build Maven') {
+            steps {
+                sh ''' cd backend
+                       mvn clean package -DskipTests'''
+            }
+        }
+
+        stage('Build Docker Image-backend') {
+           steps {
+                sh '''
+                cd backend
+                docker build -t backend .
+                '''
+            }
+        }
+
+        stage('Pull Docker Image-backend') {
+           steps {
+                sh '''
+                cd backend 
+                docker tag backend:latest patil8333/backend:latest
+                docker push patil8333/backend:latest
+                '''
+            }
+        }
+        stage('Update Kubernetes Image-backend') {
+            steps {
+                sh ''' cd simple-deploy 
+                    sed -i "s|image: image-name|image: patil8333/backend:latest|g" backend-pod.yaml
+
+                    cat backend-pod.yaml
+                '''
+            }
+        }
+        stage('Deploy to Kubernetes-backend') {
+            steps {
+                sh ''' cd simple-deploy 
+                    kubectl apply -f backend-pod.yaml 
+                '''
+            }
+        }
+        stage('Update Frontend ENV') {
+            steps {
+                sh '''
+                cd frontend 
+                BACKEND_IP=13.229.100.10
+                BACKEND_PORT=8080
+                sed -i "s|^VITE_API_URL=.*|VITE_API_URL=http://${BACKEND_IP}:${BACKEND_PORT}|" .env
+
+                cat .env
+                '''
+            }
+        }
+        stage('Build Frontend Docker Image') {
+           steps {
+                sh '''
+                cd frontend 
+                docker build -t frontend .
+                '''
+            }
+        }
+        stage('Pull Docker Image-frontend') {
+           steps {
+                sh '''
+                cd frontend 
+                docker tag frontend:latest patil8333/frontend:latest
+                docker push patil8333/frontend:latest
+                '''
+            }
+        }
+        stage('Update Kubernetes Image-frontend') {
+            steps {
+                sh ''' cd simple-deploy 
+                    sed -i "s|image: image-name|image: patil8333/frontend:latest|g" frontend-pod.yaml
+
+                    cat frontend-pod.yaml
+                '''
+            }
+        }
+        stage('Deploy to Kubernetes-frontend') {
+            steps {
+                sh ''' cd simple-deploy 
+                    kubectl apply -f frontend-pod.yaml 
+                '''
+            }
+        }
+    }
+}
