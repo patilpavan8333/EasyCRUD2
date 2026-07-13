@@ -63,14 +63,22 @@ pipeline {
         }
         stage('Update Frontend ENV') {
             steps {
-                sh '''
-                cd frontend 
-                BACKEND_IP=13.229.100.10
-                BACKEND_PORT=8080
-                sed -i "s|^VITE_API_URL=.*|VITE_API_URL=http://${BACKEND_IP}:${BACKEND_PORT}|" .env
+                    sh '''
+                        cd frontend
 
-                cat .env
-                '''
+                        NODE_IP=$(kubectl get nodes -o wide --no-headers | awk '{print $7}' | head -1)
+                        NODE_PORT=$(kubectl get svc backend-svc -o jsonpath='{.spec.ports[0].nodePort}')
+
+                        echo "Node IP: $NODE_IP"
+                        echo "NodePort: $NODE_PORT"
+
+                        grep -v '^VITE_API_URL=' .env > .env.tmp
+                        echo "VITE_API_URL=http://$NODE_IP:$NODE_PORT/api" >> .env.tmp
+                        mv .env.tmp .env
+
+                        echo "Updated .env:"
+                        cat .env
+                        '''
             }
         }
         stage('Build Frontend Docker Image') {
