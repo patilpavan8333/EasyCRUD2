@@ -8,7 +8,7 @@ steps:
 
 - script: |
     docker --version
-    docker build -t myapp:latest .
+    docker build -t myapp:latest ./frontend
   displayName: 'Build Docker Image'
 
 - script: |
