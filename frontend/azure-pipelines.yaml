@@ -8,8 +8,17 @@ steps:
 
 - script: |
     docker --version
-    docker build -t myapp:latest ./frontend
+    docker build -t patil8333/myapp:latest ./frontend
   displayName: 'Build Docker Image'
+
+- task: Docker@2
+  displayName: 'Push Docker Image'
+  inputs:
+    containerRegistry: 'DockerHubConnection'
+    repository: 'patil8333/myapp'
+    command: 'push'
+    tags: |
+      latest
 
 - script: |
     docker images
